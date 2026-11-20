@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>飛鳥時代ダービー</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f3eadb; --sea:#d6ecec; --sea-deep:#bfdfe2; --land:#9aa86a; --land-edge:#6f7d45;
+  --ink:#2b2320; --sub:#62554a; --boat:#956636; --mast:#5a3d22;
+  --bub-bg:#fffdf7; --card:#fffaf1; --line:#d9c9ad;
+  --beni:#b8323f; --gold:#b07d1c; --ok:#3f7a3a; --tag:#e9f6f6;
+  color-scheme: light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#1e1a16; --sea:#1d3640; --sea-deep:#183039; --land:#6f7c48; --land-edge:#525d33; --ink:#f2e8d7; --sub:#c2b39c;
+    --boat:#a8763f; --mast:#d2a774; --bub-bg:#2c2621; --card:#2a241f; --line:#4b4136; --beni:#e0606c; --gold:#e2b14c; --ok:#9fd08f; --tag:#22404b; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#1e1a16; --sea:#1d3640; --sea-deep:#183039; --land:#6f7c48; --land-edge:#525d33; --ink:#f2e8d7; --sub:#c2b39c;
+  --boat:#a8763f; --mast:#d2a774; --bub-bg:#2c2621; --card:#2a241f; --line:#4b4136; --beni:#e0606c; --gold:#e2b14c; --ok:#9fd08f; --tag:#22404b; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho","YuMincho",serif;
+  font-weight:600; line-height:1.65;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .35 0 0 0 0 .25 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+button{font-family:inherit}
+.wrap{max-width:1440px;margin:0 auto;padding:10px 24px 12px;height:100%;display:flex;flex-direction:column}
+
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:8px;flex-shrink:0}
+header h1{margin:0;font-size:32px;line-height:1.1;letter-spacing:.08em;font-weight:800}
+.stats{display:flex;gap:10px;align-items:center}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 14px;font-size:13px;text-align:center;line-height:1.3}
+.stat b{display:block;font-size:18px;font-weight:800}
+.imoko-slot{width:44px;height:44px;border-radius:50%;border:2px dashed var(--line);display:grid;place-items:center;font-size:12px;color:var(--sub);background:var(--card)}
+.imoko-slot.on{border:2px solid var(--gold);color:var(--gold);font-weight:800}
+.snd{font-size:14px;font-weight:800;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:10px 14px;cursor:pointer}
+
+.main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px;align-items:stretch}
+.main>section{display:flex;flex-direction:column;min-height:0}
+@media (max-width:980px){.main{grid-template-columns:1fr}.wrap{padding:12px 14px 28px;height:auto}header h1{font-size:28px}.main>section{display:block}.stage{flex:none}.stage svg.map{height:auto}}
+
+/* 海図 */
+.stage{position:relative;flex:1;min-height:0;border-radius:6px 6px 0 0;overflow:hidden;background:var(--sea);border:1px solid var(--line);border-bottom:none}
+.stage svg.map{display:block;width:100%;height:100%}
+.tenkai{position:absolute;right:12px;top:10px;font-size:13px;background:var(--tag);border:1px solid var(--line);border-radius:999px;padding:3px 14px;color:var(--sub)}
+
+.overlay{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+.overlay.show{display:flex}
+.overlay.dim{background:color-mix(in srgb,var(--paper) 86%,transparent);backdrop-filter:blur(2px)}
+.taunt{font-size:48px;line-height:1.25;margin:0 0 12px;font-weight:800;letter-spacing:.04em}
+@media (max-width:980px){.taunt{font-size:34px}}
+.rule{font-size:18px;margin:0 0 22px;line-height:1.8}
+
+.btn{font-weight:800;font-size:18px;border:none;border-radius:6px;padding:13px 30px;cursor:pointer;background:var(--beni);color:#fff8ef;box-shadow:0 3px 0 #7e1f29}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #7e1f29}
+.btn:focus-visible,.bet:focus-visible,.snd:focus-visible{outline:3px solid #3d5a9c;outline-offset:2px}
+
+/* ざわざわ */
+.chatter{position:absolute;inset:0;padding:22px 22px 18px;display:none;grid-template-columns:repeat(2,1fr);gap:10px 16px;align-content:center;background:color-mix(in srgb,var(--sea) 55%,transparent)}
+.chatter.show{display:grid}
+.bub{position:relative;background:var(--bub-bg);color:var(--ink);border:2px solid var(--ink);border-radius:22px;box-shadow:3px 3px 0 var(--ink);padding:9px 16px 9px 46px;font-size:16px;font-weight:600;line-height:1.45;text-align:left;opacity:0;transform:scale(.6) rotate(var(--r,0deg));transition:opacity .18s,transform .22s cubic-bezier(.3,1.6,.6,1)}
+.bub.on{opacity:1;transform:scale(1) rotate(var(--r,0deg))}
+.bub .who{position:absolute;left:10px;top:50%;translate:0 -50%;width:26px;height:26px;border-radius:50%;background:var(--beni);color:#fff8ef;font-size:14px;display:grid;place-items:center;font-weight:800}
+.nm{font-weight:800;white-space:nowrap}
+.nm i{display:inline-block;width:.7em;height:.7em;border-radius:50%;border:1.5px solid var(--ink);margin-right:3px;vertical-align:.05em}
+.timer{position:absolute;left:0;top:0;height:6px;background:var(--beni);width:100%;transform-origin:left}
+
+/* オージエンス */
+.audience{flex-shrink:0;background:var(--card);border:1px solid var(--line);border-top:3px solid var(--ink);border-radius:0 0 6px 6px;padding:6px 40px 4px}
+.crowd{display:grid;grid-template-columns:repeat(10,1fr);gap:8px;align-items:end;max-width:760px;margin:0 auto}
+.p{text-align:center}
+.p svg{width:100%;max-width:44px;height:auto;display:block;margin:0 auto}
+.p .no{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--beni);color:#fff8ef;font-size:12px;font-weight:800;line-height:1}
+.p.talk svg{animation:bob .3s ease-in-out infinite alternate}
+@keyframes bob{to{transform:translateY(-4px)}}
+.audience .cap{text-align:center;font-size:15px;font-weight:800;letter-spacing:.2em;margin:4px 0 0}
+
+/* サイド */
+.side{display:flex;flex-direction:column;gap:12px;min-height:0}
+#phaseBox{flex:1;min-height:0;overflow:auto}
+.box{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 16px}
+.box h2{font-size:19px;margin:0 0 8px;font-weight:800;line-height:1.3}
+.legend{margin:0;padding:0;list-style:none;font-size:13.5px}
+.legend li{padding:3px 0;border-top:1px dashed var(--line)}
+.legend li:first-child{border-top:none}
+.legend b{font-weight:800}
+.status{font-size:15px;color:var(--sub);margin:0}
+
+.bets{display:grid;gap:8px}
+.bet{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:10px 12px;cursor:pointer;color:var(--ink);font-size:16px;font-weight:800}
+.bet:hover{border-color:var(--ink)}
+.sw{width:20px;height:20px;border-radius:50%;flex-shrink:0;border:1.5px solid var(--ink)}
+.bet .cl{font-size:13px;color:var(--sub);margin-left:auto;font-weight:600}
+.star{color:var(--gold);font-weight:800}
+
+.mybet{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:800}
+.mybet .lbl{font-size:13px;color:#fff8ef;background:var(--beni);border-radius:4px;padding:2px 8px;font-weight:800}
+
+.board{list-style:none;margin:0;padding:0}
+.board li{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:4px;font-size:16px;font-weight:800;transition:background .2s}
+.board li .pos{width:24px;text-align:center;font-size:18px}
+.board li.mine{background:color-mix(in srgb,var(--beni) 14%,transparent)}
+.board li .tagm{margin-left:auto;font-size:12px;color:var(--beni)}
+.log{list-style:none;margin:0;padding:0;font-size:14.5px;min-height:7.5em}
+.log li{padding:3px 0;border-top:1px dashed var(--line)}
+.log li:first-child{border-top:none;font-size:17px;font-weight:800}
+
+/* 結果 */
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:780px;text-align:left;margin:0 0 16px}
+.res-grid .box{max-height:220px;overflow:auto}
+.res-grid ol{margin:0;padding-left:1.4em;font-size:15px}
+.res-grid ul{margin:0;padding-left:1.1em;font-size:14px}
+.rank{font-size:20px;margin:0 0 14px}
+
+.get{position:fixed;inset:0;display:none;place-items:center;background:rgba(20,14,10,.6);padding:20px;z-index:20}
+.get.show{display:grid}
+.get .card{background:var(--card);border:3px solid var(--gold);border-radius:10px;padding:26px 28px;text-align:center;max-width:360px}
+.get .card h3{font-size:38px;margin:0 0 4px;color:var(--gold);font-weight:800}
+.get .card p{margin:0 0 18px}
+
+@media (prefers-reduced-motion: reduce){.p.talk svg{animation:none}.bub{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>飛鳥時代ダービー</h1>
+    <div class="stats">
+      <div class="stat">連勝<b id="streak">0</b></div>
+      <div class="stat">最高<b id="best">0</b></div>
+      <div class="imoko-slot" id="slot" title="3連勝で小野妹子が手に入る">？</div>
+      <button class="snd" id="snd" aria-pressed="true">音 ON</button>
+    </div>
+  </header>
+
+  <div class="main">
+    <section>
+      <div class="stage" id="stage">
+        <svg class="map" viewBox="0 0 1000 440" aria-label="倭から隋への海路">
+          <defs>
+            <pattern id="wave" width="44" height="18" patternUnits="userSpaceOnUse">
+              <path d="M0 11 Q11 4 22 11 T44 11" fill="none" stroke="var(--sea-deep)" stroke-width="1.4"/>
+            </pattern>
+          </defs>
+          <rect x="-600" y="-300" width="2200" height="1040" fill="url(#wave)" opacity=".8"/>
+          <g id="milestones"></g>
+          <g id="lanes"></g>
+          <!-- 隋 -->
+          <path d="M-600 -300 H150 Q148 -60 150 0 Q130 60 152 120 Q170 190 140 250 Q120 320 150 380 Q160 410 140 440 Q125 560 150 740 H-600 Z" fill="var(--land)" stroke="var(--land-edge)" stroke-width="2"/>
+          <text x="40" y="236" font-size="56" font-weight="800" fill="var(--paper)">隋</text>
+          <!-- ゴール -->
+          <line x1="178" y1="66" x2="178" y2="410" stroke="var(--beni)" stroke-width="3" stroke-dasharray="10 6"/>
+          <text x="178" y="428" text-anchor="middle" font-size="15" font-weight="800" fill="var(--beni)">ゴール</text>
+          <!-- 倭 -->
+          <defs><path id="coast" d="M1600 -300 L965 -300 Q930 -200 944 -120 Q958 -40 910 18 Q882 60 906 112 Q936 152 904 198 Q874 240 894 290 Q916 332 884 372 Q862 412 902 452 Q944 520 924 740 L1600 740 Z"/></defs>
+          <use href="#coast" transform="translate(-12 0)" fill="none" stroke="var(--sea-deep)" stroke-width="3" stroke-dasharray="16 12"/>
+          <use href="#coast" fill="var(--land)" stroke="var(--land-edge)" stroke-width="2.5"/>
+          <g fill="none" stroke="var(--land-edge)" stroke-width="2" stroke-linecap="round">
+            <path d="M948 84 q14 -20 28 0 q12 -14 24 0"/>
+            <path d="M936 330 q14 -20 28 0 q12 -14 24 0"/>
+            <path d="M952 400 q10 -14 20 0"/>
+          </g>
+          <g transform="translate(956 220)">
+            <rect x="-30" y="-30" width="60" height="60" rx="5" fill="var(--beni)"/>
+            <rect x="-24" y="-24" width="48" height="48" rx="2" fill="none" stroke="#fff8ef" stroke-width="1.5"/>
+            <text y="13" text-anchor="middle" font-size="38" font-weight="800" fill="#fff8ef">倭</text>
+          </g>
+          <line x1="852" y1="66" x2="852" y2="410" stroke="var(--ink)" stroke-width="2" stroke-dasharray="3 5" opacity=".5"/>
+          <g id="ships"></g>
+        </svg>
+        <div class="tenkai">天界ビュー　あなた＝厩戸</div>
+        <div class="chatter" id="chatter"><div class="timer" id="timer"></div></div>
+        <div class="overlay dim show" id="title">
+          <p class="taunt">お前は厩戸になれるのか？</p>
+          <p class="rule">10人の噂を同時に聞き、一番に隋へ着く遣隋使を推理せよ。<br>噂を全部読み解けば、答えは必ず1人に決まる。</p>
+          <button class="btn" id="startBtn">出航（音が鳴ります）</button>
+        </div>
+        <div class="overlay dim" id="result"></div>
+      </div>
+      <div class="audience" aria-label="オージエンス">
+        <div class="crowd" id="crowd"></div>
+        <p class="cap">オージエンス</p>
+      </div>
+    </section>
+
+    <aside class="side">
+      <div class="box">
+        <h2>噂の読み方</h2>
+        <ul class="legend">
+          <li><b>「AはBより速い／遅い」</b>　そのままの順位関係</li>
+          <li><b>「調子いい」</b>　2位以内に入る</li>
+          <li><b>「重い」「不調」</b>　1位にはなれない</li>
+          <li><b>服の色の噂</b>　その色の服の遣隋使のこと</li>
+        </ul>
+      </div>
+      <div class="box" id="phaseBox">
+        <p class="status">「出航」を押すと始まる。</p>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div class="get" id="get">
+  <div class="card">
+    <h3>小野妹子</h3>
+    <p>3連勝の褒美。次の便から金の帆で出走する。</p>
+    <button class="btn" id="getClose">迎え入れる</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  const KEY='asuka-derby:v1';
+  let save={best:0, imoko:false, muted:false};
+  try{ const v=localStorage.getItem(KEY); if(v) save=Object.assign(save, JSON.parse(v)); }catch(e){}
+  const persist=()=>{ try{ localStorage.setItem(KEY, JSON.stringify(save)); }catch(e){} };
+  const pick=a=>a[Math.floor(Math.random()*a.length)];
+  const shuffle=a=>{ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+  const rand=(a,b)=>a+Math.random()*(b-a);
+
+  /* ================= 音 ================= */
+  let ac=null, master, bus, bgmGain, gayaGain, bgmTimer=null, gayaTimer=null, gayaNoise=null;
+  function initAudio(){
+    if(ac){ if(ac.state==='suspended') ac.resume(); return; }
+    ac=new (window.AudioContext||window.webkitAudioContext)();
+    master=ac.createGain(); master.gain.value=save.muted?0:1; master.connect(ac.destination);
+    const verb=ac.createConvolver(), len=ac.sampleRate*2.8, ir=ac.createBuffer(2,len,ac.sampleRate);
+    for(let c=0;c<2;c++){const d=ir.getChannelData(c); for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6);}
+    verb.buffer=ir; const wet=ac.createGain(); wet.gain.value=.35; verb.connect(wet); wet.connect(master);
+    bus=ac.createGain(); bus.connect(master); bus.connect(verb);
+    bgmGain=ac.createGain(); bgmGain.gain.value=0; bgmGain.connect(bus);
+    gayaGain=ac.createGain(); gayaGain.gain.value=0; gayaGain.connect(master);
+  }
+  function setMute(m){
+    save.muted=m; persist();
+    $('#snd').textContent=m?'音 OFF':'音 ON'; $('#snd').setAttribute('aria-pressed',String(!m));
+    if(master) master.gain.setTargetAtTime(m?0:1, ac.currentTime, .05);
+  }
+  function noiseBuf(sec){ const b=ac.createBuffer(1,ac.sampleRate*sec,ac.sampleRate), d=b.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1; return b; }
+  function horagai(){
+    const t=ac.currentTime+.05;
+    const blast=(st,dur,f0,f1)=>{
+      const out=ac.createGain(); out.gain.setValueAtTime(0,st); out.gain.linearRampToValueAtTime(.55,st+.35);
+      out.gain.setValueAtTime(.5,st+dur-.5); out.gain.linearRampToValueAtTime(0,st+dur);
+      const lp=ac.createBiquadFilter(); lp.type='lowpass'; lp.Q.value=5;
+      lp.frequency.setValueAtTime(400,st); lp.frequency.linearRampToValueAtTime(1100,st+.4); lp.frequency.linearRampToValueAtTime(700,st+dur);
+      [1,1.004,.5].forEach((m,k)=>{
+        const o=ac.createOscillator(); o.type=k===2?'square':'sawtooth';
+        o.frequency.setValueAtTime(f0*m,st); o.frequency.exponentialRampToValueAtTime(f1*m,st+.45);
+        o.frequency.setValueAtTime(f1*m,st+dur-.5); o.frequency.exponentialRampToValueAtTime(f1*m*.9,st+dur);
+        const vib=ac.createOscillator(), vg=ac.createGain(); vib.frequency.value=5.2; vg.gain.value=2.5; vib.connect(vg); vg.connect(o.frequency); vib.start(st); vib.stop(st+dur);
+        const g=ac.createGain(); g.gain.value=k===2?.25:.4; o.connect(g); g.connect(lp); o.start(st); o.stop(st+dur+.05);
+      });
+      const n=ac.createBufferSource(); n.buffer=noiseBuf(dur);
+      const bp=ac.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1300; bp.Q.value=1.2;
+      const ng=ac.createGain(); ng.gain.value=.07; n.connect(bp); bp.connect(ng); ng.connect(out); n.start(st);
+      lp.connect(out); out.connect(bus);
+    };
+    // プルっ（震える短い吹き出し）
+    const env=ac.createGain(); env.gain.setValueAtTime(0,t); env.gain.linearRampToValueAtTime(.55,t+.04); env.gain.setValueAtTime(.55,t+.28); env.gain.linearRampToValueAtTime(0,t+.36);
+    const am=ac.createGain(); am.gain.value=.5;
+    const lfo=ac.createOscillator(), ld=ac.createGain(); lfo.frequency.value=26; ld.gain.value=.5; lfo.connect(ld); ld.connect(am.gain);
+    const plp=ac.createBiquadFilter(); plp.type='lowpass'; plp.frequency.value=1500; plp.Q.value=4;
+    [1,1.005].forEach(m=>{ const o=ac.createOscillator(); o.type='sawtooth'; o.frequency.setValueAtTime(170*m,t); o.frequency.exponentialRampToValueAtTime(215*m,t+.3); const g=ac.createGain(); g.gain.value=.4; o.connect(g); g.connect(plp); o.start(t); o.stop(t+.4); });
+    lfo.start(t); lfo.stop(t+.4);
+    plp.connect(am); am.connect(env); env.connect(bus);
+    // プー（まっすぐ伸ばす）
+    blast(t+.48,1.35,150,176);
+    return 2.0;
+  }
+  function taiko(t,v=.7){
+    const o=ac.createOscillator(), g=ac.createGain();
+    o.frequency.setValueAtTime(110,t); o.frequency.exponentialRampToValueAtTime(48,t+.35);
+    g.gain.setValueAtTime(v,t); g.gain.exponentialRampToValueAtTime(.001,t+.7);
+    o.connect(g); g.connect(bus); o.start(t); o.stop(t+.75);
+  }
+  function kakko(t){
+    const n=ac.createBufferSource(); n.buffer=noiseBuf(.06);
+    const hp=ac.createBiquadFilter(); hp.type='bandpass'; hp.frequency.value=2600; hp.Q.value=3;
+    const g=ac.createGain(); g.gain.setValueAtTime(.35,t); g.gain.exponentialRampToValueAtTime(.001,t+.05);
+    n.connect(hp); hp.connect(g); g.connect(bgmGain); n.start(t);
+  }
+  const R={D4:293.66,E4:329.63,G4:392,A4:440,B4:493.88,D5:587.33,E5:659.25,A3:220,B3:246.94};
+  const SHO=[[R.A3,R.D4,R.E4,R.A4,R.B4],[R.B3,R.E4,R.A4,R.B4,R.E5],[R.A3,R.D4,R.G4,R.A4,R.D5]];
+  const MEL=[['A4',2],['B4',1],['A4',1],['G4',2],['E4',2],['D4',3],['E4',1],['G4',2],['A4',2],['B4',1.5],['D5',.5],['B4',2],['A4',4],
+             ['E4',2],['G4',1],['A4',1],['B4',3],['A4',1],['G4',2],['E4',2],['D4',4]];
+  const BEAT=.62;
+  function sho(t,chord,dur){
+    const g=ac.createGain(); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.06,t+1.4); g.gain.setValueAtTime(.06,t+dur-1.2); g.gain.linearRampToValueAtTime(0,t+dur);
+    const lp=ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1800;
+    chord.forEach(f=>['triangle','sine'].forEach((ty,k)=>{
+      const o=ac.createOscillator(); o.type=ty; o.frequency.value=f*(k?2.003:1); o.detune.value=rand(-6,6);
+      const og=ac.createGain(); og.gain.value=k?.25:1; o.connect(og); og.connect(lp); o.start(t); o.stop(t+dur+.05);
+    }));
+    lp.connect(g); g.connect(bgmGain);
+  }
+  function hichiriki(t,f,dur,dest){
+    const o=ac.createOscillator(); o.type='sawtooth';
+    o.frequency.setValueAtTime(f*.93,t); o.frequency.exponentialRampToValueAtTime(f,t+.22);
+    const vib=ac.createOscillator(), vg=ac.createGain(); vib.frequency.value=4.5; vg.gain.setValueAtTime(0,t); vg.gain.linearRampToValueAtTime(f*.012,t+dur*.8);
+    vib.connect(vg); vg.connect(o.frequency);
+    const bp=ac.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1150; bp.Q.value=1.1;
+    const lp=ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=2600;
+    const g=ac.createGain(); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.11,t+.12); g.gain.setValueAtTime(.1,t+dur-.15); g.gain.linearRampToValueAtTime(0,t+dur);
+    o.connect(bp); bp.connect(lp); lp.connect(g); g.connect(dest||bgmGain);
+    o.start(t); o.stop(t+dur+.05); vib.start(t); vib.stop(t+dur);
+  }
+  let bgmNext=0, melIdx=0, shoIdx=0, shoNext=0;
+  function bgmTick(){
+    const ahead=ac.currentTime+1.5;
+    while(bgmNext<ahead){ const [n,b]=MEL[melIdx%MEL.length]; hichiriki(bgmNext,R[n],b*BEAT*.97); bgmNext+=b*BEAT; melIdx++; }
+    while(shoNext<ahead){
+      sho(shoNext,SHO[shoIdx%SHO.length],8*BEAT+.6);
+      for(let k=0;k<8;k++){ const tt=shoNext+k*BEAT; if(k===0) taiko(tt,.35); else if(k===4) taiko(tt,.2); if(k%2===1) kakko(tt); }
+      shoNext+=8*BEAT; shoIdx++;
+    }
+  }
+  function bgmStart(at){
+    if(bgmTimer) return;
+    bgmNext=shoNext=at; melIdx=shoIdx=0;
+    bgmGain.gain.setValueAtTime(0,at); bgmGain.gain.linearRampToValueAtTime(.9,at+2);
+    bgmTimer=setInterval(bgmTick,300); bgmTick();
+  }
+  function bgmLevel(v){ if(ac) bgmGain.gain.setTargetAtTime(v, ac.currentTime, .3); }
+  const VOWELS=[[800,1200],[300,2300],[350,1300],[500,1900],[500,900]];
+  function syllable(t,base,pan){
+    const [f1,f2]=pick(VOWELS), dur=rand(.07,.17);
+    const o=ac.createOscillator(); o.type='sawtooth';
+    o.frequency.setValueAtTime(base*rand(.9,1.15),t); o.frequency.linearRampToValueAtTime(base*rand(.85,1.2),t+dur);
+    const a=ac.createBiquadFilter(); a.type='bandpass'; a.frequency.value=f1; a.Q.value=6;
+    const b=ac.createBiquadFilter(); b.type='bandpass'; b.frequency.value=f2; b.Q.value=8;
+    const g=ac.createGain(); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(rand(.05,.11),t+.02); g.gain.linearRampToValueAtTime(0,t+dur);
+    o.connect(a); o.connect(b); a.connect(g); b.connect(g);
+    if(ac.createStereoPanner){ const p=ac.createStereoPanner(); p.pan.value=pan; g.connect(p); p.connect(gayaGain); } else g.connect(gayaGain);
+    o.start(t); o.stop(t+dur+.02);
+  }
+  const voices=Array.from({length:10},(_,i)=>({base:i%2?rand(190,260):rand(105,150), pan:(i/9)*1.6-.8, next:0}));
+  function gayaStart(){
+    const t=ac.currentTime;
+    gayaGain.gain.cancelScheduledValues(t); gayaGain.gain.setValueAtTime(0,t); gayaGain.gain.linearRampToValueAtTime(1,t+.4);
+    gayaNoise=ac.createBufferSource(); gayaNoise.buffer=noiseBuf(3); gayaNoise.loop=true;
+    const bp=ac.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=700; bp.Q.value=.8;
+    const lfo=ac.createOscillator(), lg=ac.createGain(); lfo.frequency.value=3.3; lg.gain.value=.02;
+    const ng=ac.createGain(); ng.gain.value=.05; lfo.connect(lg); lg.connect(ng.gain);
+    gayaNoise.connect(bp); bp.connect(ng); ng.connect(gayaGain); gayaNoise.start(); lfo.start(); gayaNoise._lfo=lfo;
+    voices.forEach(v=>v.next=t+rand(0,.4));
+    gayaTimer=setInterval(()=>{
+      const ahead=ac.currentTime+.25;
+      voices.forEach(v=>{ while(v.next<ahead){ if(Math.random()<.12){ v.next+=rand(.15,.4); continue; } syllable(v.next,v.base,v.pan); v.next+=rand(.08,.16); } });
+    },80);
+  }
+  function gayaStop(){
+    if(!ac||!gayaTimer) return;
+    clearInterval(gayaTimer); gayaTimer=null;
+    const t=ac.currentTime; gayaGain.gain.setTargetAtTime(0,t,.12);
+    if(gayaNoise){ gayaNoise.stop(t+.6); gayaNoise._lfo.stop(t+.6); gayaNoise=null; }
+  }
+  function fanfare(win){
+    const t=ac.currentTime+.05;
+    if(win){ taiko(t,.8); taiko(t+.3,.8); taiko(t+.6,1); }
+    else { taiko(t,.6); hichiriki(t+.1,R.E4,1.2,bus); hichiriki(t+1.3,R.D4*.94,1.4,bus); }
+  }
+
+  /* ================= オージエンス ================= */
+  const CROWD=[
+    ['#b8323f',['#b8323f','#e7d7bf','#8f9a5a'],'#8f9a5a'],['#d9a23a',['#8f9a5a','#d9a23a','#b8323f'],'#8f9a5a'],
+    ['#8f9a5a',['#3d5a9c','#3d5a9c','#2f4a80'],'#b8323f'],['#e7d7bf',['#b8323f','#d9a23a','#8f9a5a'],'#3d5a9c'],
+    ['#b8323f',['#3d5a9c','#3d5a9c','#2f4a80'],'#2b4a3a'],['#8f9a5a',['#b8323f','#e7d7bf','#8f9a5a'],'#b8323f'],
+    ['#d9a23a',['#b8323f','#d9a23a','#8f9a5a'],'#8f9a5a'],['#3d5a9c',['#d9a23a','#e7d7bf','#b8323f'],'#d9a23a'],
+    ['#b8323f',['#8f9a5a','#e7d7bf','#b8323f'],'#d9a23a'],['#8f9a5a',['#b8323f','#d9a23a','#3d5a9c'],'#b8323f']
+  ];
+  function person(i){
+    const [robe,st,belt]=CROWD[i];
+    const flip=i%3===1?'transform="translate(60 0) scale(-1 1)"':'';
+    return `<svg viewBox="0 0 60 104" aria-hidden="true"><g ${flip}>
+      <defs><pattern id="st${i}" width="9" height="10" patternUnits="userSpaceOnUse">
+        <rect width="3" height="10" fill="${st[0]}"/><rect x="3" width="3" height="10" fill="${st[1]}"/><rect x="6" width="3" height="10" fill="${st[2]}"/></pattern></defs>
+      <path d="M14 62 L46 62 L55 98 Q30 102 5 98 Z" fill="url(#st${i})" stroke="#3a2e26" stroke-width="1"/>
+      <path d="M17 35 Q30 29 43 35 L48 68 L12 68 Z" fill="${robe}" stroke="#3a2e26" stroke-width="1"/>
+      <path d="M12 44 L6 60 L14 62 Z M48 44 L54 60 L46 62 Z" fill="${robe}" stroke="#3a2e26" stroke-width="1"/>
+      <rect x="13" y="56" width="34" height="3" fill="${belt}"/>
+      <path d="M24 35 L30 45 L36 35" fill="none" stroke="#3a2e26" stroke-width="1"/>
+      <circle cx="30" cy="22" r="9.5" fill="#f5e6d3" stroke="#3a2e26" stroke-width="1"/>
+      <path d="M20.5 21 Q21 9.5 31 10.5 Q40.5 11 39.5 21 Q36.5 15 30 15 Q23.5 15 20.5 21Z" fill="#2b211c"/>
+      <path d="M38 15 Q48 15 46 23 Q42 19 38.5 21Z" fill="#2b211c"/>
+      <path d="M25.5 22.5 h2.5 M32 22.5 h2.5" stroke="#2b211c" stroke-width="1.2" stroke-linecap="round"/>
+      <circle cx="30" cy="27.5" r="1" fill="#b8323f"/>
+    </g></svg>`;
+  }
+  const crowdEl=$('#crowd');
+  for(let i=0;i<10;i++){ const d=document.createElement('div'); d.className='p'; d.innerHTML=person(i)+`<span class="no">${i+1}</span>`; crowdEl.appendChild(d); }
+
+  /* ================= 海図・舟 ================= */
+  const COLORS={'紅':'#b8323f','黄':'#d9a23a','緑':'#8f9a5a','藍':'#3d5a9c','生成':'#e7d7bf','紫':'#74508a'};
+  const POOL=['吉士雄成','鞍作福利','高向玄理','僧旻','南淵請安','倭漢福因','奈羅訳語恵明','新漢人広済'];
+  const NONOKO='オノノノコ', IMOKO='小野妹子';
+  const START_X=830, GOAL_X=178;
+  const laneY=i=>110+i*66;
+  const MILES=[{x:730,n:'壱岐'},{x:600,n:'対馬'},{x:450,n:'百済沖'},{x:300,n:'黄海'}];
+  $('#milestones').innerHTML=MILES.map(m=>`<line x1="${m.x}" y1="66" x2="${m.x}" y2="410" stroke="var(--ink)" stroke-width="1" stroke-dasharray="2 6" opacity=".35"/>
+    <text x="${m.x}" y="54" text-anchor="middle" font-size="15" font-weight="800" fill="var(--sub)">${m.n}</text>`).join('')
+    + `<text x="852" y="54" text-anchor="middle" font-size="15" font-weight="800" fill="var(--sub)">難波津</text>`;
+  const shipsEl=$('#ships'), lanesEl=$('#lanes');
+  function drawShips(ships,mine){
+    lanesEl.innerHTML=ships.map((s,i)=>`<rect x="160" y="${laneY(i)-30}" width="700" height="58" fill="${i===mine?'var(--beni)':'transparent'}" opacity=".12"/>`).join('');
+    shipsEl.innerHTML=ships.map((s,i)=>{
+      const sail=s.special?'var(--gold)':COLORS[s.color];
+      const star=s.special?`<path d="M0 -40 l2.4 5 5.4.6-4 3.7 1.1 5.3-4.9-2.7-4.9 2.7 1.1-5.3-4-3.7 5.4-.6z" fill="var(--gold)"/>`:'';
+      const flag=i===mine?`<g transform="translate(26 -30)"><rect x="0" y="-4" width="2" height="34" fill="var(--ink)"/><path d="M2 -4 h58 l-8 10 8 10 h-58z" fill="var(--beni)"/><text x="29" y="10.5" text-anchor="middle" font-size="11" font-weight="800" fill="#fff8ef">あなたの賭け</text></g>`:'';
+      return `<g id="ship${i}" transform="translate(${START_X} ${laneY(i)})">
+        <path d="M-28 0 L28 0 L20 11 L-20 11Z" fill="var(--boat)" stroke="#3a2614" stroke-width="1.2"/>
+        <rect x="-1.5" y="-28" width="3" height="28" fill="var(--mast)"/>
+        <path d="M0 -27 L-22 -17 L0 -6Z" fill="${sail}" stroke="#3a2614" stroke-width="1.2"/>
+        ${star}${flag}
+        <text x="0" y="27" text-anchor="middle" font-size="14" font-weight="800" fill="var(--ink)" paint-order="stroke" stroke="var(--sea)" stroke-width="4">${s.name}</text>
+      </g>`;
+    }).join('');
+  }
+  const xAt=p=>START_X+(GOAL_X-START_X)*p;
+  function placeShip(i,p){
+    const g=document.getElementById('ship'+i); if(!g) return;
+    g.setAttribute('transform',`translate(${xAt(p).toFixed(1)} ${(laneY(i)+Math.sin(performance.now()/300+i)*2).toFixed(1)}) rotate(${(Math.sin(performance.now()/240+i)*2.5).toFixed(1)})`);
+  }
+
+  /* ================= 謎解き噂の生成 =================
+     真の順位を決め、それと矛盾しない手がかりを足していく。
+     全120通りの順位のうち手がかりと矛盾しないものを総当たりし、
+     1位が1人に決まった時点で確定。余分な手がかりは削る。 */
+  const PERMS=(function perm(a){ if(a.length<=1) return [a]; return a.flatMap((x,i)=>perm(a.slice(0,i).concat(a.slice(i+1))).map(p=>[x].concat(p))); })([0,1,2,3,4]);
+  function holds(c,rank){
+    if(c.k==='cmp') return rank[c.a]<rank[c.b];
+    if(c.k==='slow') return rank[c.a]!==0;
+    if(c.k==='good') return rank[c.a]<=1;
+  }
+  function winners(clues){
+    const w=new Set();
+    for(const p of PERMS){ const rank=[]; p.forEach((s,k)=>rank[s]=k); if(clues.every(c=>holds(c,rank))) w.add(p[0]); }
+    return w;
+  }
+  const nm=s=>`<span class="nm"><i style="background:${s.special?'#c08a22':COLORS[s.color]}"></i>${s.name}</span>`;
+  const T_FAST=['{a}は{b}より速いらしい','{a}、{b}より先を行ってるって','{a}の舟は{b}の舟より速いよ'];
+  const T_SLOW_CMP=['{b}は{a}より遅いって','{b}、{a}には勝てないらしい'];
+  const T_HEAVY=['{n}、今日はシルクを大量に運んでて重いらしい','{n}の舟、銅鏡を積みすぎて重いって'];
+  const T_BAD=['{n}、船酔いで不調だって','{n}、国書の書き直しで寝不足、不調らしい'];
+  const T_COLOR=['{c}の服の人、向かい風で不調らしい','{c}の服の人、袖が帆に絡まって不調だって'];
+  const T_GOOD=['{n}、今日は調子いいらしい','{n}、絶好調だってさ'];
+  const NOISE=['U☆MAYADO〜！','お腹すいたなあ','冠位って何色が偉いんだっけ','あの雲、隋のかたちしてる','蘇我さんちの庭すごいよね','日出づる処の…あと何だっけ','法隆寺はよ建って','和を以て貴しと為す〜','厩戸さま、こっち見てない？'];
+
+  function textOf(c,ships){
+    const A=ships[c.a], B=c.b!=null?ships[c.b]:null;
+    if(c.k==='cmp') return c.flip ? pick(T_SLOW_CMP).replace('{a}',nm(A)).replace('{b}',nm(B)) : pick(T_FAST).replace('{a}',nm(A)).replace('{b}',nm(B));
+    if(c.k==='good') return pick(T_GOOD).replace('{n}',nm(A));
+    if(c.k==='slow'){
+      if(c.by==='color') return pick(T_COLOR).replace('{c}',`<span class="nm"><i style="background:${COLORS[A.color]}"></i>${A.color}</span>`);
+      return pick(c.by==='heavy'?T_HEAVY:T_BAD).replace('{n}',nm(A));
+    }
+  }
+  function plain(c,ships){
+    const A=ships[c.a].name, B=c.b!=null?ships[c.b].name:'';
+    if(c.k==='cmp') return `${A} ＞ ${B}`;
+    if(c.k==='good') return `${A}は2位以内`;
+    return `${A}は1位ではない（${c.by==='color'?ships[c.a].color+'の服':c.by==='heavy'?'重い':'不調'}）`;
+  }
+
+  function makeRound(){
+    let names=shuffle(POOL).slice(0,5);
+    if(Math.random()<.35) names[Math.floor(Math.random()*5)]=NONOKO;
+    if(save.imoko && Math.random()<.5){ const free=[0,1,2,3,4].filter(k=>names[k]!==NONOKO); names[pick(free)]=IMOKO; }
+    const cols=shuffle(Object.keys(COLORS)).slice(0,5);
+    const ships=names.map((n,i)=>({name:n,color:cols[i],special:n===IMOKO}));
+    for(let tries=0;tries<300;tries++){
+      const order=shuffle([0,1,2,3,4]); const rank=[]; order.forEach((s,k)=>rank[s]=k);
+      const cand=[];
+      for(let a=0;a<5;a++) for(let b=0;b<5;b++) if(rank[a]<rank[b]) cand.push({k:'cmp',a,b,flip:Math.random()<.4,w:rand(0,1)});
+      for(let a=0;a<5;a++) if(rank[a]!==0) cand.push({k:'slow',a,by:pick(['heavy','bad','color']),w:rand(.2,1.3)});
+      for(let a=0;a<5;a++) if(rank[a]<=1) cand.push({k:'good',a,w:rand(.1,1.1)});
+      cand.sort((x,y)=>x.w-y.w);
+      let clues=[];
+      for(const c of cand){
+        if(clues.some(d=>d.k===c.k&&d.a===c.a&&d.b===c.b)) continue;
+        clues.push(c); if(winners(clues).size===1) break;
+      }
+      // 余分な手がかりを削る
+      for(const c of shuffle(clues)){ const rest=clues.filter(d=>d!==c); if(winners(rest).size===1) clues=rest; }
+      const nCmp=clues.filter(c=>c.k==='cmp').length;
+      if(clues.length<4 || clues.length>7 || nCmp<2) continue;
+      if(clues.filter(c=>c.k!=='cmp').length<1) continue;
+      const hints=clues.map(c=>({html:textOf(c,ships),real:true}));
+      shuffle(NOISE).slice(0,10-hints.length).forEach(t=>hints.push({html:t,real:false}));
+      return {ships,order,win:order[0],clues,hints:shuffle(hints)};
+    }
+    return makeRound();
+  }
+
+  /* ================= 進行 ================= */
+  const chatter=$('#chatter'), timer=$('#timer'), box=$('#phaseBox');
+  let streak=0, round=null, racing=false, mine=null;
+  const listenTime=()=>Math.max(9000, 16000-streak*1500);
+
+  function start(){
+    initAudio();
+    $('#title').classList.remove('show'); $('#result').classList.remove('show');
+    round=makeRound(); mine=null;
+    drawShips(round.ships,null); round.ships.forEach((_,i)=>placeShip(i,0));
+    box.innerHTML=`<h2>出航準備</h2><p class="status">ほら貝のあと、オージエンスが一斉に噂を始める。</p>`;
+    const first=!bgmTimer, wait=horagai();
+    bgmLevel(.25); if(first) bgmStart(ac.currentTime+wait-.3);
+    setTimeout(listen,(wait-.6)*1000);
+  }
+
+  function listen(){
+    chatter.querySelectorAll('.bub').forEach(b=>b.remove());
+    const who=shuffle([...Array(10).keys()]);
+    const bubs=round.hints.map((h,k)=>{
+      const b=document.createElement('div'); b.className='bub'; b.style.setProperty('--r',rand(-2.5,2.5).toFixed(1)+'deg');
+      b.innerHTML=`<span class="who">${who[k]+1}</span>${h.html}`; chatter.appendChild(b); return [b,who[k]];
+    });
+    chatter.classList.add('show');
+    const T=listenTime();
+    timer.style.transition='none'; timer.style.transform='scaleX(1)';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{ timer.style.transition=`transform ${T}ms linear`; timer.style.transform='scaleX(0)'; }));
+    box.innerHTML=`<h2>聞き取り中…</h2><p class="status">残り ${Math.round(T/1000)} 秒。噂は二度と出ない。</p>`;
+    bgmLevel(.35); gayaStart();
+    bubs.forEach(([b,w])=>setTimeout(()=>{ b.classList.add('on'); crowdEl.children[w].classList.add('talk'); },rand(60,600)));
+    setTimeout(endListen,T+600);
+  }
+
+  function endListen(){
+    gayaStop(); bgmLevel(.9);
+    chatter.querySelectorAll('.bub').forEach(b=>b.classList.remove('on'));
+    [...crowdEl.children].forEach(c=>c.classList.remove('talk'));
+    setTimeout(()=>chatter.classList.remove('show'),200);
+    box.innerHTML=`<h2>一番乗りは誰だ</h2><p class="status" style="margin-bottom:10px">聞いた噂から推理して1人に賭けよ。</p>
+      <div class="bets">${round.ships.map((s,i)=>`<button class="bet" data-i="${i}">
+        <span class="sw" style="background:${s.special?'#c08a22':COLORS[s.color]}"></span>${s.special?'<span class="star">★</span>':''}${s.name}
+        <span class="cl">${s.color}の服</span></button>`).join('')}</div>`;
+    box.querySelectorAll('.bet').forEach(b=>b.addEventListener('click',()=>race(+b.dataset.i)));
+    box.querySelector('.bet').focus({preventScroll:true});
+  }
+
+  function race(choice){
+    if(racing) return; racing=true; mine=choice;
+    drawShips(round.ships,mine); round.ships.forEach((_,i)=>placeShip(i,0));
+    const S=round.ships[mine];
+    box.innerHTML=`<div class="mybet"><span class="lbl">あなたの賭け</span><span class="sw" style="background:${S.special?'#c08a22':COLORS[S.color]}"></span>${S.name}</div>
+      <h2 style="margin-top:14px">現在の順位</h2><ol class="board" id="board"></ol>
+      <h2 style="margin-top:14px">実況</h2><ul class="log" id="log"></ul>`;
+    const log=$('#log'), board=$('#board');
+    const say=t=>{ const li=document.createElement('li'); li.textContent=t; log.prepend(li); while(log.children.length>5) log.lastChild.remove(); };
+    say('出航！ 5艘が一斉に難波津を離れた！');
+    // 着順どおりにゴールしつつ、途中は抜きつ抜かれつ
+    const dur={}, prof={};
+    round.order.forEach((i,k)=>{ dur[i]=12500+k*700+rand(0,150); prof[i]={A:rand(.05,.085)*(Math.random()<.5?-1:1), w:Math.PI*rand(2,3.2), ph:rand(0,6.28)}; });
+    const prog=(i,el)=>{ const u=Math.min(1,el/dur[i]), f=prof[i]; return Math.max(0,Math.min(1,u+f.A*Math.sin(f.w*u+f.ph)*Math.sin(Math.PI*u))); };
+    const t0=performance.now(); let lastBeat=0, leader=-1, lastLead=0, passed=new Set(), finalSaid=false, finished=[];
+    (function frame(now){
+      const el=now-t0; let done=true;
+      const ps=round.ships.map((_,i)=>prog(i,el));
+      ps.forEach((p,i)=>{ placeShip(i,p); if(p<1) done=false; else if(!finished.includes(i)) finished.push(i); });
+      const live=[...finished].concat([0,1,2,3,4].filter(i=>!finished.includes(i)).sort((a,b)=>ps[b]-ps[a]));
+      board.innerHTML=live.map((i,k)=>{ const s=round.ships[i]; return `<li class="${i===mine?'mine':''}"><span class="pos">${k+1}</span><span class="sw" style="background:${s.special?'#c08a22':COLORS[s.color]}"></span>${s.name}${finished.includes(i)?' 🏁':''}${i===mine?'<span class="tagm">賭け</span>':''}</li>`; }).join('');
+      const lead=live[0], lp=ps[lead];
+      if(lead!==leader && el-lastLead>1100 && el>900){
+        leader=lead; lastLead=el;
+        say(lead===mine?`あなたの${round.ships[lead].name}が先頭に！`:`${round.ships[lead].name}が先頭に立った！`);
+      }
+      MILES.forEach(m=>{ if(!passed.has(m.n) && xAt(lp)<=m.x){ passed.add(m.n); say(`先頭の${round.ships[lead].name}、${m.n}を通過！`); } });
+      if(!finalSaid && lp>.85){ finalSaid=true; say('隋の岸が見えた！ 最後の直線！'); }
+      const gap=lp>.85?170:lp>.6?300:460;
+      if(ac && el-lastBeat>gap){ taiko(ac.currentTime, lp>.85?.35:.22); lastBeat=el; }
+      if(!done) requestAnimationFrame(frame); else { racing=false; say(`${round.ships[round.win].name}、一番乗り！`); setTimeout(()=>finish(choice),700); }
+    })(t0);
+  }
+
+  const WIN=['厩戸の耳、冴えわたる','十人同時に聞けておるな','天も認める聞き分け力'];
+  const LOSE=['お前は厩戸になれるのか？','十人の声も聞けぬとは…','冠位、ひとつ下げとくね'];
+  function finish(choice){
+    const win=choice===round.win, prev=streak;
+    streak=win?streak+1:0; if(streak>save.best) save.best=streak;
+    let unlocked=false; if(win&&streak>=3&&!save.imoko){ save.imoko=true; unlocked=true; }
+    persist(); renderStats(); if(ac) fanfare(win);
+    const S=round.ships;
+    $('#result').innerHTML=`
+      <p class="taunt" style="font-size:44px">${win?pick(WIN):pick(LOSE)}</p>
+      <p class="rank">一番乗りは <b>${S[round.win].special?'★':''}${S[round.win].name}</b>。あなたの賭けは ${S[choice].name}。${win?`${streak}連勝！`:(prev?`${prev}連勝で終了。`:'')}</p>
+      <div class="res-grid">
+        <div class="box"><h2>着順</h2><ol>${round.order.map(i=>`<li>${S[i].name}${i===choice?'（賭け）':''}</li>`).join('')}</ol></div>
+        <div class="box"><h2>手がかりの答え合わせ</h2><ul>${round.clues.map(c=>`<li>${plain(c,S)}</li>`).join('')}</ul></div>
+      </div>
+      <button class="btn" id="again">${win?'次の便へ':'もう一度'}</button>`;
+    $('#result').classList.add('show');
+    $('#again').addEventListener('click',start); $('#again').focus({preventScroll:true});
+    if(unlocked) setTimeout(()=>$('#get').classList.add('show'),600);
+  }
+
+  function renderStats(){
+    $('#streak').textContent=streak; $('#best').textContent=save.best;
+    const slot=$('#slot'); slot.classList.toggle('on',save.imoko); slot.textContent=save.imoko?'妹子':'？';
+  }
+  $('#startBtn').addEventListener('click',start);
+  $('#snd').addEventListener('click',()=>{ initAudio(); setMute(!save.muted); });
+  $('#getClose').addEventListener('click',()=>{ $('#get').classList.remove('show'); $('#again')&&$('#again').focus(); });
+  setMute(save.muted); renderStats();
+  drawShips(shuffle(POOL).slice(0,5).map((n,i)=>({name:n,color:Object.keys(COLORS)[i]})),null);
+  for(let i=0;i<5;i++) placeShip(i,0);
+  setInterval(()=>{ if(!racing && round===null) for(let i=0;i<5;i++) placeShip(i,0); },120);
+})();
+</script>
+</body>
+</html>
